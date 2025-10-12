@@ -1,12 +1,12 @@
-import express, { Express } from "express";
 import cors from "cors";
+import express, { Express } from "express";
 import { PORT } from "./config/env";
-import { SampleRouter } from "./modules/sample/sample.router";
-import { error } from "console";
 import { errorMiddleware } from "./middlewares/error.middleware";
+import { SampleRouter } from "./modules/sample/sample.router";
 
 export class App {
   app: Express;
+
   constructor() {
     this.app = express();
     this.configure();
@@ -21,7 +21,8 @@ export class App {
 
   private routes() {
     const sampleRouter = new SampleRouter();
-    this.app.use("/sample", sampleRouter.getRoutes());
+
+    this.app.use("/samples", sampleRouter.getRouter());
   }
 
   private handleError() {
