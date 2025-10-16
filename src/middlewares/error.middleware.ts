@@ -7,6 +7,7 @@ export const errorMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
+  console.log(err.stack);
   const status = err.status || 500;
   const message = err.message || "Something went wrong!";
   res.status(status).send({ message });

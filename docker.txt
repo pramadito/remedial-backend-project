@@ -1,0 +1,21 @@
+cara pull image (Gunakan bash)
+- docker pull <name-image>:<version?
+- docker pull postgres:latest
+
+cara create container postgres
+
+- docker run -name <container-name> -e POSTGRES_PASSWORD=yourPassword -p <host-port>:<container-port> <name-image>:<version>
+- docker run --name postgres_container -e POSTGRES_PASSWORD=admin -p 6543:5432 postgres
+
+cara hapus container
+- docker container rm <nama-container>
+- docker container rm postgres_container
+
+cara lihat container yang lagi aktif
+- docker ps
+
+cara lihat container yang aktif dan tidak aktif
+- docker ps -a
+
+cara bind volume ke container
+- docker run --name postgres_container -e POSTGRES_PASSWORD=admin -p 6543:5432 -v postgres_volume:/var/lib/postgresql/data postgres
