@@ -19,91 +19,98 @@ model Sample {
   @@map("samples")
 }
 
+enum Role {
+  CASHIER
+  ADMIN
+}
+
+enum PaymentMethod {
+  CASH
+  DEBIT
+}
+
+
 model User {
-  id           Int           @id @default(autoincrement())
-  name         String
-  email        String        @unique
-  password     String
-  role         Role          @default(USER)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  blogs        Blog[]
-  products     Product[]
-  transactions Transaction[]
+  id       String   @id @default(cuid())
+  name     String
+  email    String   @unique
+  password String
+  role     Role @default(CASHIER)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // For soft delete
+
+  // Relations
+  shifts Shift[]
+  
 
   @@map("users")
 }
 
-enum Role {
-  ADMIN
-  USER
-}
-
-model Blog {
-  id          Int       @id @default(autoincrement())
-  slug        String    @unique
-  title       String    @unique
-  description String    @db.Text
-  thumbnail   String
-  content     String    @db.Text
-  category    String
-  userId      Int
-  user        User      @relation(fields: [userId], references: [id])
-  deletedAt   DateTime?
+model Product {
+  id          String    @id @default(cuid())
+  name        String
+  price       Float
+  stock       Int
+  description String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? // For soft delete
 
-  @@map("blogs")
-}
-
-model Product {
-  id                 Int                 @id @default(autoincrement())
-  name               String
-  price              Int
-  stock              Int
-  userId             Int
-  user               User                @relation(fields: [userId], references: [id])
-  createdAt           DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  transactionDetails TransactionDetail[]
+  // Relations
+  transactionItems TransactionItem[]
 
   @@map("products")
 }
 
+model Shift {
+  id         String    @id @default(cuid())
+  cashierId  String
+  startMoney Float // Initial amount in the cash register
+  endMoney   Float? // Final amount in the cash register
+  startTime  DateTime
+  endTime    DateTime? // Set when shift ends
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  cashier      User          @relation(fields: [cashierId], references: [id])
+  transactions Transaction[]
+
+  @@map("shifts")
+}
+
 model Transaction {
-  id                 Int                 @id @default(autoincrement())
-  uuid               String              @unique @default(uuid())
-  userId             Int
-  user               User                @relation(fields: [userId], references: [id])
-  paymentProof       String?
-  status             TransactionStatus   @default(WAITING_FOR_PAYMENT)
-  createdAt           DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  transactionDetails TransactionDetail[]
+  id              String        @id @default(cuid())
+  shiftId         String
+  paymentMethod   PaymentMethod
+  debitCardNumber String? // Only for debit payments
+  cashAmount      Float? // Only for cash payments
+  changeAmount    Float? // Only for cash payments
+  totalAmount     Float
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  shift            Shift             @relation(fields: [shiftId], references: [id])
+  transactionItems TransactionItem[]
 
   @@map("transactions")
 }
 
-enum TransactionStatus {
-  WAITING_FOR_PAYMENT
-  WAITING_FOR_CONFIRMATION
-  PAID
-  REJECT
-  EXPIRED
-}
+model TransactionItem {
+  id            String   @id @default(cuid())
+  transactionId String
+  productId     String
+  quantity      Int
+  price         Float // Price at the time of transaction
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-model TransactionDetail {
-  id            Int         @id @default(autoincrement())
-  transactionId Int
-  transaction   Transaction @relation(fields: [transactionId], references: [id])
-  productId     Int
-  product       Product     @relation(fields: [productId], references: [id])
+  // Relations
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+  product     Product     @relation(fields: [productId], references: [id])
 
-  qty   Int
-  price Int
-
-  createdAt  DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("transaction_details")
+  @@map("transaction_items")
 }

@@ -26,7 +26,7 @@ export class TransactionRouter {
     this.router.post(
       "/",
       this.jwtMiddleware.verifyToken(process.env.JWT_SECRET!),
-      this.jwtMiddleware.verifyRole(["USER"]),
+      this.jwtMiddleware.verifyRole(["ADMIN"]),
       validateBody(CreateTransactionDTO),
       this.transactionController.createTransaction
     );

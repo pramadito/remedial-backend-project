@@ -4,10 +4,10 @@ import "reflect-metadata";
 import { PORT } from "./config/env";
 import { errorMiddleware } from "./middlewares/error.middleware";
 import { AuthRouter } from "./modules/auth/auth.router";
-import { BlogRouter } from "./modules/blog/blog.router";
+
 import { SampleRouter } from "./modules/sample/sample.router";
-import { TransactionRouter } from "./modules/transaction/transaction.router";
-import { initializedWorkers } from "./workers";
+import { ProductRouter } from "./modules/product/product.router";
+
 
 export class App {
   app: Express;
@@ -17,7 +17,7 @@ export class App {
     this.routes();
     this.handleError();
     //initializeScheduler();
-    initializedWorkers();
+
   }
 
   private configure() {
@@ -28,13 +28,20 @@ export class App {
   private routes() {
     const sampleRouter = new SampleRouter();
     const authRouter = new AuthRouter();
-    const blogRouter = new BlogRouter();
-    const transactionRouter = new TransactionRouter();
+    // const userRouter= new UserRouter();
+     const productRouter = new ProductRouter();
+    // const transactionRouter = new TransactionRouter();
+    // const shiftRouter = new ShiftRouter();
+
+ 
 
     this.app.use("/samples", sampleRouter.getRoutes());
     this.app.use("/auth", authRouter.getRoutes());
-    this.app.use("/blogs", blogRouter.getRoutes());
-    this.app.use("/transactions", transactionRouter.getRoutes());
+    // this.app.use('/users', userRouter.getRouter());
+     this.app.use('/products', productRouter.getRouter());
+    // this.app.use('/transactions', transactionRouter.getRouter());
+    // this.app.use('/shifts', shiftRouter.getRouter());
+
   }
 
   private handleError() {

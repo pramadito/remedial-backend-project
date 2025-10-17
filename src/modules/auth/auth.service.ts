@@ -118,7 +118,7 @@ export class AuthService {
     return { message: "send email successfully" };
   };
 
-  resetPassword = async (body: ResetPasswordDTO, authUserId: number) => {
+  resetPassword = async (body: ResetPasswordDTO, authUserId: string) => {
     const user = await this.prisma.user.findFirst({
       where: { id: authUserId },
     });
