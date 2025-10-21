@@ -8,9 +8,9 @@ import { AuthRouter } from "./modules/auth/auth.router";
 import { SampleRouter } from "./modules/sample/sample.router";
 import { ProductRouter } from "./modules/product/product.router";
 import { CashierRouter } from "./modules/cashier/cashier.router";
-import { ShiftRouter } from "./modules/shift/shift.router";
+//import { ShiftRouter } from "./modules/shift/shift.router";
 import { TransactionRouter } from "./modules/transaction/transaction.router";
-import { ReportRouter } from "./modules/report/report.router";
+//import { ReportRouter } from "./modules/report/report.router";
 
 
 export class App {
@@ -35,9 +35,9 @@ export class App {
     // const userRouter= new UserRouter();
      const productRouter = new ProductRouter();
      const cashierRouter = new CashierRouter();
-     const shiftRouter = new ShiftRouter();
+     //const shiftRouter = new ShiftRouter();
      const transactionRouter = new TransactionRouter();
-     const reportRouter = new ReportRouter();
+     //const reportRouter = new ReportRouter();
 
  
 
@@ -46,9 +46,9 @@ export class App {
     // this.app.use('/users', userRouter.getRouter());
      this.app.use('/products', productRouter.getRouter());
      this.app.use('/cashiers', cashierRouter.getRouter());
-     this.app.use('/shifts', shiftRouter.getRouter());
+     //this.app.use('/shifts', shiftRouter.getRouter());
      this.app.use('/transactions', transactionRouter.getRoutes());
-     this.app.use('/reports', reportRouter.getRoutes());
+     //this.app.use('/reports', reportRouter.getRoutes());
 
   }
 
