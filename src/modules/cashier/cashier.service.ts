@@ -11,29 +11,29 @@ export class CashierService {
   private prisma: PrismaService;
 
   constructor() {
-    this.prisma = PrismaService.getInstance();
+    this.prisma = new PrismaService();
   }
 
   createCashier = async (body: CreateCashierDTO) => {
-    // Check if username already exists
-    const existingUser = await this.prisma.getClient().user.findFirst({
+    // Check if email already exists
+    const existingUser = await this.prisma.user.findFirst({
       where: { 
-        username: body.username,
+        email: body.email,
         deletedAt: null
       },
     });
 
     if (existingUser) {
-      throw new ApiError("Username already exists", 400);
+      throw new ApiError("Email already exists", 400);
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(body.password, 10);
 
     // Create cashier (user with CASHIER role)
-    const cashier = await this.prisma.getClient().user.create({
+    const cashier = await this.prisma.user.create({
       data: {
-        username: body.username,
+        email: body.email,
         password: hashedPassword,
         name: body.name,
         role: "CASHIER",
@@ -47,7 +47,7 @@ export class CashierService {
   };
 
   getCashiers = async () => {
-    const cashiers = await this.prisma.getClient().user.findMany({
+    const cashiers = await this.prisma.user.findMany({
       where: { 
         role: "CASHIER",
         deletedAt: null 
@@ -62,7 +62,7 @@ export class CashierService {
     });
 
     // Remove passwords from response
-    const cashiersWithoutPasswords = cashiers.map(cashier => {
+    const cashiersWithoutPasswords = cashiers.map((cashier: any) => {
       const { password, ...cashierWithoutPassword } = cashier;
       return cashierWithoutPassword;
     });
@@ -71,7 +71,7 @@ export class CashierService {
   };
 
   searchCashiers = async (searchTerm: string) => {
-    const cashiers = await this.prisma.getClient().user.findMany({
+    const cashiers = await this.prisma.user.findMany({
       where: {
         AND: [
           { role: "CASHIER" },
@@ -79,7 +79,7 @@ export class CashierService {
           {
             OR: [
               {
-                username: {
+                email: {
                   contains: searchTerm,
                   mode: 'insensitive'
                 }
@@ -104,7 +104,7 @@ export class CashierService {
     });
 
     // Remove passwords from response
-    const cashiersWithoutPasswords = cashiers.map(cashier => {
+    const cashiersWithoutPasswords = cashiers.map((cashier: any) => {
       const { password, ...cashierWithoutPassword } = cashier;
       return cashierWithoutPassword;
     });
@@ -113,7 +113,7 @@ export class CashierService {
   };
 
   getCashierById = async (id: string) => {
-    const cashier = await this.prisma.getClient().user.findFirst({
+    const cashier = await this.prisma.user.findFirst({
       where: { 
         id, 
         role: "CASHIER",
@@ -136,7 +136,7 @@ export class CashierService {
 
   updateCashier = async (id: string, body: UpdateCashierDTO) => {
     // Check if cashier exists
-    const cashier = await this.prisma.getClient().user.findFirst({
+    const cashier = await this.prisma.user.findFirst({
       where: { 
         id, 
         role: "CASHIER",
@@ -148,18 +148,18 @@ export class CashierService {
       throw new ApiError("Cashier not found", 404);
     }
 
-    // If updating username, check if it's already taken
-    if (body.username && body.username !== cashier.username) {
-      const existingUser = await this.prisma.getClient().user.findFirst({
+    // If updating email, check if it's already taken
+    if (body.email && body.email !== (cashier as any).email) {
+      const existingUser = await this.prisma.user.findFirst({
         where: { 
-          username: body.username,
+          email: body.email,
           deletedAt: null,
           NOT: { id }
         },
       });
 
       if (existingUser) {
-        throw new ApiError("Username already exists", 400);
+        throw new ApiError("Email already exists", 400);
       }
     }
 
@@ -169,7 +169,7 @@ export class CashierService {
       updateData.password = await bcrypt.hash(body.password, 10);
     }
 
-    const updatedCashier = await this.prisma.getClient().user.update({
+    const updatedCashier = await this.prisma.user.update({
       where: { id },
       data: updateData,
     });
@@ -182,7 +182,7 @@ export class CashierService {
 
   deleteCashier = async (id: string) => {
     // Check if cashier has any active shifts
-    const activeShift = await this.prisma.getClient().shift.findFirst({
+    const activeShift = await this.prisma.shift.findFirst({
       where: {
         cashierId: id,
         endTime: null
@@ -194,7 +194,7 @@ export class CashierService {
     }
 
     // Soft delete cashier
-    await this.prisma.getClient().user.update({
+    await this.prisma.user.update({
       where: { id },
       data: { deletedAt: new Date() },
     });
@@ -204,7 +204,7 @@ export class CashierService {
 
   getCashierStats = async () => {
     // Get total number of cashiers
-    const totalCashiers = await this.prisma.getClient().user.count({
+    const totalCashiers = await this.prisma.user.count({
       where: { 
         role: "CASHIER",
         deletedAt: null 
@@ -212,7 +212,7 @@ export class CashierService {
     });
 
     // Get number of active cashiers (with active shifts)
-    const activeCashiers = await this.prisma.getClient().user.count({
+    const activeCashiers = await this.prisma.user.count({
       where: { 
         role: "CASHIER",
         deletedAt: null,

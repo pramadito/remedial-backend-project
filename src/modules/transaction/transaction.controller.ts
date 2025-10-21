@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-
 import { TransactionService } from "./transaction.service";
 import { ApiError } from "../../utils/api-error";
 
@@ -8,6 +7,12 @@ export class TransactionController {
   constructor() {
     this.transactionService = new TransactionService();
   }
+
+  posCheckout = async (req: Request, res: Response) => {
+    const user = res.locals.user as { id: string; role: string };
+    const result = await this.transactionService.createPosTransaction(req.body, user);
+    res.status(201).send(result);
+  };
 
   createTransaction = async (req: Request, res: Response) => {
     const authUserId = res.locals.user.id;
@@ -38,7 +43,8 @@ export class TransactionController {
   };
 
   getTransactions = async (req: Request, res: Response) => {
-    const result = await this.transactionService.getTransactions();
+    const user = res.locals.user as { id: string; role: string };
+    const result = await this.transactionService.getTransactions(req.query as any, user);
     res.status(200).send(result);
   };
 }

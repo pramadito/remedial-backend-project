@@ -4,7 +4,7 @@ import { IsString, IsOptional } from 'class-validator';
 export class UpdateCashierDTO {
   @IsString()
   @IsOptional()
-  username?: string;
+  email?: string;
 
   @IsString()
   @IsOptional()

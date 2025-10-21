@@ -7,6 +7,7 @@ import { TransactionController } from "./transaction.controller";
 import { UploadPaymentProofDTO } from "./dto/upload-payment-proof.dto";
 import { UploaderMiddleware } from "../../middlewares/uploader.middleware";
 import { UpdateTransactionDTO } from "./dto/update-transaction.dto";
+import { CreatePosTransactionDTO } from "./dto/create-pos-transaction.dto";
 
 export class TransactionRouter {
   private router: Router;
@@ -22,7 +23,21 @@ export class TransactionRouter {
     this.initializedRoutes();
   }
   private initializedRoutes = () => {
-    this.router.get("/", this.transactionController.getTransactions);
+    this.router.get(
+      "/",
+      this.jwtMiddleware.verifyToken(process.env.JWT_SECRET!),
+      this.jwtMiddleware.verifyRole(["CASHIER", "ADMIN"] as any),
+      this.transactionController.getTransactions
+    );
+
+    // POS checkout by cashier/admin
+    this.router.post(
+      "/pos",
+      this.jwtMiddleware.verifyToken(process.env.JWT_SECRET!),
+      this.jwtMiddleware.verifyRole(["CASHIER", "ADMIN"] as any),
+      validateBody(CreatePosTransactionDTO),
+      this.transactionController.posCheckout
+    );
     this.router.post(
       "/",
       this.jwtMiddleware.verifyToken(process.env.JWT_SECRET!),
@@ -33,7 +48,7 @@ export class TransactionRouter {
     this.router.patch(
       "/payment-proof",
       this.jwtMiddleware.verifyToken(process.env.JWT_SECRET!),
-      this.jwtMiddleware.verifyRole(["USER"]),
+      this.jwtMiddleware.verifyRole(["CASHIER"] as any),
       this.uploaderMiddleware
         .upload()
         .fields([{ name: "paymentProof", maxCount: 1 }]),

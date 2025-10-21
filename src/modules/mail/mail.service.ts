@@ -6,13 +6,21 @@ import Handlebars from "handlebars";
 export class MailService {
   private transporter: Transporter;
   constructor() {
-    this.transporter = createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASSWORD,
-      },
-    });
+    const user = process.env.MAIL_USER;
+    const pass = process.env.MAIL_PASSWORD;
+    if (user && pass) {
+      this.transporter = createTransport({
+        service: "gmail",
+        auth: {
+          user,
+          pass,
+        },
+      });
+    } else {
+      this.transporter = createTransport({
+        jsonTransport: true,
+      });
+    }
   }
 
   sendMail = async (
