@@ -5,6 +5,7 @@ import { ApiError } from "../../utils/api-error";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateCashierDTO } from './dto/create-cashier.dto';
 import { UpdateCashierDTO } from './dto/update-cashier.dto';
+import { GetCashiersDTO } from './dto/get-cashiers.dto';
 
 
 export class CashierService {
@@ -46,7 +47,7 @@ export class CashierService {
     return { message: "Cashier created successfully", cashier: cashierWithoutPassword };
   };
 
-  getCashiers = async () => {
+  getCashiers = async (query: GetCashiersDTO) => {
     const cashiers = await this.prisma.user.findMany({
       where: { 
         role: "CASHIER",

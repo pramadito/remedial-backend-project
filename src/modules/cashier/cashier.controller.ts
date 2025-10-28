@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { CashierService } from "./cashier.service";
+import { PaginationQueryParams } from "../pagination/pagination.dto";
+import { plainToInstance } from "class-transformer";
 
 export class CashierController {
   private cashierService: CashierService;
@@ -14,7 +16,8 @@ export class CashierController {
   };
 
   getCashiers = async (_req: Request, res: Response) => {
-    const result = await this.cashierService.getCashiers();
+     const query = plainToInstance(PaginationQueryParams, _req.query);
+    const result = await this.cashierService.getCashiers(query);
     res.status(200).send(result);
   };
 

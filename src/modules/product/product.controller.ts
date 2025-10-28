@@ -2,6 +2,8 @@
 import { Request, Response } from "express";
 import { ProductService } from "./product.service";
 import { ApiError } from "../../utils/api-error";
+import { PaginationQueryParams } from "../pagination/pagination.dto";
+import { plainToInstance } from "class-transformer";
 
 export class ProductController {
   private productService: ProductService;
@@ -16,7 +18,8 @@ export class ProductController {
   };
 
   getProducts = async (req: Request, res: Response) => {
-    const result = await this.productService.getProducts();
+    const query = plainToInstance(PaginationQueryParams, req.query);
+    const result = await this.productService.getProducts(query);
     res.status(200).send(result);
   };
 
